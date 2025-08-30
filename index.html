@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>目標・振り返り記録システム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif;
+            background-color: #f5f5f7;
+            color: #333;
+            font-size: 16px;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+        }
+        
+        .container {
+            max-width: 768px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .login-container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 50px;
+        }
+        
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #1d1d1f;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #1d1d1f;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d2d2d7;
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: #f5f5f7;
+            -webkit-appearance: none;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #007aff;
+            background-color: white;
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: #007aff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 500;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        button:active {
+            background-color: #0051d5;
+        }
+        
+        button:disabled {
+            background-color: #c7c7cc;
+            cursor: not-allowed;
+        }
+        
+        .secondary-button {
+            background-color: #f5f5f7;
+            color: #007aff;
+            margin-top: 10px;
+        }
+        
+        .secondary-button:active {
+            background-color: #e5e5ea;
+        }
+        
+        .notice {
+            background-color: #fff3cd;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #856404;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .dashboard {
+            display: none;
+        }
+        
+        .header {
+            background-color: white;
+            padding: 15px 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin: -20px -20px 20px -20px;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 768px;
+            margin: 0 auto;
+        }
+        
+        .user-info {
+            font-weight: 500;
+        }
+        
+        .logout-button {
+            background-color: #ff3b30;
+            padding: 8px 16px;
+            font-size: 14px;
+            width: auto;
+        }
+        
+        .tabs {
+            display: flex;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            background-color: #f5f5f7;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .tab.active {
+            background-color: #007aff;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f5f5f7;
+            border-radius: 8px;
+        }
+        
+        .section h3 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #1d1d1f;
+        }
+        
+        .star-rating {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            justify-content: center;
+        }
+        
+        .star {
+            font-size: 36px;
+            cursor: pointer;
+            color: #d2d2d7;
+            transition: color 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .star.active {
+            color: #ffcc00;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #86868b;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #32d74b;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 2000;
+        }
+        
+        .toast.error {
+            background-color: #ff3b30;
+        }
+        
+        .toast.show {
+            opacity: 1;
+        }
+        
+        .record-card {
+            background-color: #f5f5f7;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        .record-date {
+            font-weight: 600;
+            color: #007aff;
+            margin-bottom: 10px;
+        }
+        
+        .record-score {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            color: #ffcc00;
+        }
+        
+        .search-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .search-controls input, .search-controls select {
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .stats {
+            background-color: #e5f2ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #86868b;
+        }
+        
+        .date-nav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .date-nav button {
+            width: auto;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+        
+        .date-nav input {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- ログイン画面 -->
+    <div class="container" id="loginScreen">
+        <div class="login-container">
+            <h1>目標・振り返り記録システム</h1>
+            
+            <div class="notice">
+                氏名は名簿と完全に一致するように入力してください。<br>
+                共有iPadを使用する場合は、必ずログアウトしてください。
+            </div>
+            
+            <div id="loginError" class="error" style="display: none;"></div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="grade">学年</label>
+                    <select id="grade" required>
+                        <option value="">選択してください</option>
+                        <option value="1">1年</option>
+                        <option value="2">2年</option>
+                        <option value="3">3年</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="class">クラス</label>
+                    <select id="class" required>
+                        <option value="">選択してください</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="number">出席番号</label>
+                    <select id="number" required>
+                        <option value="">選択してください</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="name">氏名</label>
+                    <input type="text" id="name" placeholder="例: 山田太郎" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">パスワード</label>
+                    <input type="password" id="password" required>
+                </div>
+                
+                <button type="submit">ログイン</button>
+                <button type="button" class="secondary-button" onclick="showTeacherModal()">先生設定</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- ダッシュボード -->
+    <div class="dashboard" id="dashboardScreen">
+        <div class="header">
+            <div class="header-content">
+                <div class="user-info">
+                    <span id="userDisplay"></span> | <span id="dateDisplay"></span>
+                </div>
+                <button class="logout-button" onclick="logout()">ログアウト</button>
+            </div>
+        </div>
+        
+        <div class="container">
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('today')">本日の記録</div>
+                <div class="tab" onclick="switchTab('date')">日付から見る</div>
+                <div class="tab" onclick="switchTab('history')">履歴</div>
+            </div>
+            
+            <!-- 本日の記録タブ -->
+            <div class="tab-content active" id="todayTab">
+                <div class="date-nav">
+                    <button onclick="changeDate(-1)">前日</button>
+                    <input type="date" id="todayDate" onchange="loadTodayRecord()">
+                    <button onclick="changeDate(1)">翌日</button>
+                </div>
+                
+                <div class="section">
+                    <h3>授業開始直後：今日の目標</h3>
+                    <textarea id="goalInput" rows="3" placeholder="今日の授業で達成したい目標を書きましょう"></textarea>
+                    <button onclick="saveGoal()" style="margin-top: 10px;">目標を保存</button>
+                </div>
+                
+                <div class="section">
+                    <h3>授業終了直前：学び・気づき</h3>
+                    <textarea id="reflectionInput" rows="4" placeholder="今日の授業で学んだこと、気づいたことを書きましょう"></textarea>
+                    
+                    <p style="margin-top: 15px; text-align: center;">自己評価（1〜10）</p>
+                    <div class="star-rating" id="starRating">
+                        <!-- 星は動的に生成 -->
+                    </div>
+                    
+                    <button onclick="saveReflection()" style="margin-top: 10px;">振り返りを保存</button>
+                </div>
+            </div>
+            
+            <!-- 日付から見るタブ -->
+            <div class="tab-content" id="dateTab">
+                <div class="form-group">
+                    <label for="viewDate">日付を選択</label>
+                    <input type="date" id="viewDate" onchange="loadDateRecord()">
+                </div>
+                
+                <div id="dateRecordDisplay" class="loading">日付を選択してください</div>
+            </div>
+            
+            <!-- 履歴タブ -->
+            <div class="tab-content" id="historyTab">
+                <div class="stats" id="statsDisplay">
+                    <div>読み込み中...</div>
+                </div>
+                
+                <div class="search-controls">
+                    <input type="text" id="searchQuery" placeholder="キーワード検索" onkeyup="searchRecords()">
+                    <input type="date" id="fromDate" onchange="searchRecords()">
+                    <input type="date" id="toDate" onchange="searchRecords()">
+                    <select id="sortOrder" onchange="searchRecords()">
+                        <option value="date-desc">新しい順</option>
+                        <option value="date-asc">古い順</option>
+                        <option value="score-desc">評価が高い順</option>
+                        <option value="score-asc">評価が低い順</option>
+                    </select>
+                </div>
+                
+                <div id="historyDisplay" class="loading">読み込み中...</div>
+            </div>
+            
+            <!-- パスワード変更 -->
+            <div style="margin-top: 40px; padding: 20px; background-color: white; border-radius: 8px;">
+                <h3 style="margin-bottom: 15px;">パスワード変更</h3>
+                <div class="form-group">
+                    <label for="oldPassword">現在のパスワード</label>
+                    <input type="password" id="oldPassword">
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">新しいパスワード</label>
+                    <input type="password" id="newPassword">
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">新しいパスワード（確認）</label>
+                    <input type="password" id="confirmPassword">
+                </div>
+                <button onclick="changePassword()">パスワードを変更</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 先生設定モーダル -->
+    <div class="modal" id="teacherModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeTeacherModal()">&times;</span>
+            <h2>先生設定</h2>
+            
+            <div class="form-group">
+                <label for="masterKey">マスターキー</label>
+                <input type="password" id="masterKey" placeholder="マスターキーを入力">
+            </div>
+            
+            <div id="teacherControls" style="display: none;">
+                <div class="section">
+                    <h3>生徒CSV取り込み</h3>
+                    <p style="margin-bottom: 10px; font-size: 14px;">CSV形式: grade,class,number,name,password</p>
+                    <textarea id="csvInput" rows="6" placeholder="CSVデータを貼り付けてください"></textarea>
+                    <button onclick="importStudents()" style="margin-top: 10px;">生徒データを取り込む</button>
+                </div>
+                
+                <div class="section">
+                    <h3>全データエクスポート</h3>
+                    <button onclick="exportAllData()">全データをダウンロード</button>
+                </div>
+            </div>
+            
+            <button onclick="verifyMasterKey()">認証</button>
+        </div>
+    </div>
+    
+    <!-- トースト -->
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        // API設定
+        const API_BASE = "https://script.google.com/macros/s/AKfycbx9pNfpI8_r1-mpMgECRbRU-S-DorKm6DC10g1XA-vmsXUw9J0NeVK44hanVzbUQs9g/exec";
+        
+        // グローバル変数
+        let currentUser = null;
+        let currentDate = new Date().toISOString().split('T')[0];
+        let selectedScore = 0;
+        
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSelects();
+            initializeStarRating();
+            document.getElementById('todayDate').value = currentDate;
+            document.getElementById('dateDisplay').textContent = formatDateJP(currentDate);
+        });
+        
+        // セレクトボックスの初期化
+        function initializeSelects() {
+            // クラス
+            const classSelect = document.getElementById('class');
+            for (let i = 1; i <= 20; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i + '組';
+                classSelect.appendChild(option);
+            }
+            
+            // 出席番号
+            const numberSelect = document.getElementById('number');
+            for (let i = 1; i <= 40; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = String(i).padStart(2, '0');
+                numberSelect.appendChild(option);
+            }
+        }
+        
+        // 星評価の初期化
+        function initializeStarRating() {
+            const container = document.getElementById('starRating');
+            for (let i = 1; i <= 10; i++) {
+                const star = document.createElement('span');
+                star.className = 'star';
+                star.textContent = '★';
+                star.onclick = () => setScore(i);
+                container.appendChild(star);
+            }
+            
+            // キーボード操作
+            document.addEventListener('keydown', function(e) {
+                if (document.activeElement.tagName !== 'INPUT' && 
+                    document.activeElement.tagName !== 'TEXTAREA') {
+                    if (e.key === 'ArrowLeft' && selectedScore > 1) {
+                        setScore(selectedScore - 1);
+                    } else if (e.key === 'ArrowRight' && selectedScore < 10) {
+                        setScore(selectedScore + 1);
+                    }
+                }
+            });
+        }
+        
+        // スコア設定
+        function setScore(score) {
+            selectedScore = score;
+            const stars = document.querySelectorAll('.star');
+            stars.forEach((star, index) => {
+                star.classList.toggle('active', index < score);
+            });
+        }
+        
+        // ログインフォーム
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const data = {
+                action: 'login',
+                grade: parseInt(document.getElementById('grade').value),
+                class: parseInt(document.getElementById('class').value),
+                number: parseInt(document.getElementById('number').value),
+                name: document.getElementById('name').value.trim(),
+                password: document.getElementById('password').value
+            };
+            
+            try {
+                const result = await apiCall(data);
+                if (result.ok) {
+                    currentUser = result.data;
+                    showDashboard();
+                } else {
+                    showError('loginError', result.message || 'ログインに失敗しました');
+                }
+            } catch (error) {
+                showError('loginError', 'ネットワークエラーが発生しました');
+            }
+        });
+        
+        // ダッシュボード表示
+        function showDashboard() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('dashboardScreen').style.display = 'block';
+            
+            const grade = currentUser.studentKey.split('-')[0];
+            const classNum = currentUser.studentKey.split('-')[1];
+            const number = currentUser.studentKey.split('-')[2];
+            
+            document.getElementById('userDisplay').textContent = 
+                `${grade}年${classNum}組 ${number}番 ${currentUser.name}`;
+            
+            loadTodayRecord();
+            loadHistory();
+        }
+        
+        // タブ切り替え
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            
+            if (tabName === 'history') {
+                loadHistory();
+            }
+        }
+        
+        // 日付変更
+        function changeDate(days) {
+            const date = new Date(document.getElementById('todayDate').value);
+            date.setDate(date.getDate() + days);
+            document.getElementById('todayDate').value = date.toISOString().split('T')[0];
+            loadTodayRecord();
+        }
+        
+        // 本日の記録読み込み
+        async function loadTodayRecord() {
+            const date = document.getElementById('todayDate').value;
+            
+            try {
+                const result = await apiCall({
+                    action: 'getRecord',
+                    studentKey: currentUser.studentKey,
+                    date: date
+                });
+                
+                if (result.ok && result.data.record) {
+                    const record = result.data.record;
+                    document.getElementById('goalInput').value = record.goal || '';
+                    document.getElementById('reflectionInput').value = record.reflection || '';
+                    if (record.score) {
+                        setScore(record.score);
+                    }
+                } else {
+                    document.getElementById('goalInput').value = '';
+                    document.getElementById('reflectionInput').value = '';
+                    setScore(0);
+                }
+            } catch (error) {
+                showToast('記録の読み込みに失敗しました', true);
+            }
+        }
+        
+        // 目標保存
+        async function saveGoal() {
+            const goal = document.getElementById('goalInput').value.trim();
+            if (!goal) {
+                showToast('目標を入力してください', true);
+                return;
+            }
+            
+            try {
+                const result = await apiCall({
+                    action: 'saveGoal',
+                    studentKey: currentUser.studentKey,
+                    date: document.getElementById('todayDate').value,
+                    goal: goal
+                });
+                
+                if (result.ok) {
+                    showToast('目標を保存しました');
+                } else {
+                    showToast(result.message || '保存に失敗しました', true);
+                }
+            } catch (error) {
+                showToast('ネットワークエラーが発生しました', true);
+            }
+        }
+        
+        // 振り返り保存
+        async function saveReflection() {
+            const reflection = document.getElementById('reflectionInput').value.trim();
+            if (!reflection) {
+                showToast('学び・気づきを入力してください', true);
+                return;
+            }
+            if (selectedScore === 0) {
+                showToast('自己評価を選択してください', true);
+                return;
+            }
+            
+            try {
+                const result = await apiCall({
+                    action: 'saveReflection',
+                    studentKey: currentUser.studentKey,
+                    date: document.getElementById('todayDate').value,
+                    reflection: reflection,
+                    score: selectedScore
+                });
+                
+                if (result.ok) {
+                    showToast('振り返りを保存しました');
+                } else {
+                    showToast(result.message || '保存に失敗しました', true);
+                }
+            } catch (error) {
+                showToast('ネットワークエラーが発生しました', true);
+            }
+        }
+        
+        // 日付指定で記録を見る
+        async function loadDateRecord() {
+            const date = document.getElementById('viewDate').value;
+            if (!date) return;
+            
+            const display = document.getElementById('dateRecordDisplay');
+            display.innerHTML = '<div class="loading">読み込み中...</div>';
+            
+            try {
+                const result = await apiCall({
+                    action: 'getRecord',
+                    studentKey: currentUser.studentKey,
+                    date: date
+                });
+                
+                if (result.ok && result.data.record) {
+                    const record = result.data.record;
+                    display.innerHTML = `
+                        <div class="record-card">
+                            <div class="record-date">${formatDateJP(date)}</div>
+                            ${record.score ? `<div class="record-score">★${record.score}</div>` : ''}
+                            <div style="margin: 10px 0;">
+                                <strong>目標:</strong><br>
+                                ${escapeHtml(record.goal || '未記入')}
+                            </div>
+                            <div style="margin: 10px 0;">
+                                <strong>学び・気づき:</strong><br>
+                                ${escapeHtml(record.reflection || '未記入')}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    display.innerHTML = '<div class="loading">この日の記録はありません</div>';
+                }
+            } catch (error) {
+                display.innerHTML = '<div class="error">読み込みに失敗しました</div>';
+            }
+        }
+        
+        // 履歴読み込み
+        async function loadHistory() {
+            const display = document.getElementById('historyDisplay');
+            display.innerHTML = '<div class="loading">読み込み中...</div>';
+            
+            try {
+                const result = await apiCall({
+                    action: 'history',
+                    studentKey: currentUser.studentKey
+                });
+                
+                if (result.ok && result.data.items) {
+                    displayHistory(result.data.items);
+                    updateStats(result.data.items);
+                } else {
+                    display.innerHTML = '<div class="loading">記録がありません</div>';
+                }
+            } catch (error) {
+                display.innerHTML = '<div class="error">読み込みに失敗しました</div>';
+            }
+        }
+        
+        // 履歴表示
+        function displayHistory(items) {
+            const display = document.getElementById('historyDisplay');
+            
+            if (items.length === 0) {
+                display.innerHTML = '<div class="loading">記録がありません</div>';
+                return;
+            }
+            
+            display.innerHTML = items.map(item => `
+                <div class="record-card">
+                    <div class="record-date">${formatDateJP(item.date)}</div>
+                    ${item.score ? `<div class="record-score">★${item.score}</div>` : ''}
+                    <div style="margin: 10px 0;">
+                        <strong>目標:</strong><br>
+                        ${escapeHtml(item.goal || '未記入')}
+                    </div>
+                    <div style="margin: 10px 0;">
+                        <strong>学び・気づき:</strong><br>
+                        ${escapeHtml(item.reflection || '未記入')}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 統計更新
+        function updateStats(items) {
+            const scores = items.filter(item => item.score).map(item => item.score);
+            if (scores.length === 0) {
+                document.getElementById('statsDisplay').innerHTML = '<div>まだ評価がありません</div>';
+                return;
+            }
+            
+            const average = (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1);
+            const recent = scores.slice(0, 3).join(' → ');
+            
+            document.getElementById('statsDisplay').innerHTML = `
+                <div>平均評価: ★${average}</div>
+                <div>直近3回: ${recent}</div>
+            `;
+        }
+        
+        // 検索
+        async function searchRecords() {
+            const params = {
+                action: 'history',
+                studentKey: currentUser.studentKey,
+                q: document.getElementById('searchQuery').value,
+                from: document.getElementById('fromDate').value,
+                to: document.getElementById('toDate').value,
+                sort: document.getElementById('sortOrder').value
+            };
+            
+            try {
+                const result = await apiCall(params);
+                if (result.ok && result.data.items) {
+                    displayHistory(result.data.items);
+                }
+            } catch (error) {
+                showToast('検索に失敗しました', true);
+            }
+        }
+        
+        // パスワード変更
+        async function changePassword() {
+            const oldPassword = document.getElementById('oldPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (!oldPassword || !newPassword) {
+                showToast('パスワードを入力してください', true);
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                showToast('新しいパスワードが一致しません', true);
+                return;
+            }
+            
+            try {
+                const result = await apiCall({
+                    action: 'setPassword',
+                    studentKey: currentUser.studentKey,
+                    oldPassword: oldPassword,
+                    newPassword: newPassword
+                });
+                
+                if (result.ok) {
+                    showToast('パスワードを変更しました');
+                    document.getElementById('oldPassword').value = '';
+                    document.getElementById('newPassword').value = '';
+                    document.getElementById('confirmPassword').value = '';
+                } else {
+                    showToast(result.message || 'パスワード変更に失敗しました', true);
+                }
+            } catch (error) {
+                showToast('ネットワークエラーが発生しました', true);
+            }
+        }
+        
+        // ログアウト
+        function logout() {
+            if (confirm('ログアウトしますか？')) {
+                currentUser = null;
+                document.getElementById('loginScreen').style.display = 'block';
+                document.getElementById('dashboardScreen').style.display = 'none';
+                document.getElementById('loginForm').reset();
+                document.getElementById('password').value = '';
+            }
+        }
+        
+        // 先生設定モーダル
+        function showTeacherModal() {
+            document.getElementById('teacherModal').style.display = 'block';
+        }
+        
+        function closeTeacherModal() {
+            document.getElementById('teacherModal').style.display = 'none';
+            document.getElementById('masterKey').value = '';
+            document.getElementById('teacherControls').style.display = 'none';
+        }
+        
+        // マスターキー認証
+        async function verifyMasterKey() {
+            const masterKey = document.getElementById('masterKey').value;
+            if (!masterKey) {
+                showToast('マスターキーを入力してください', true);
+                return;
+            }
+            
+            // 簡易チェック（実際の認証は各APIで行う）
+            document.getElementById('teacherControls').style.display = 'block';
+            showToast('認証しました');
+        }
+        
+        // 生徒インポート
+        async function importStudents() {
+            const masterKey = document.getElementById('masterKey').value;
+            const csvText = document.getElementById('csvInput').value.trim();
+            
+            if (!csvText) {
+                showToast('CSVデータを入力してください', true);
+                return;
+            }
+            
+            try {
+                const result = await apiCall({
+                    action: 'importStudents',
+                    masterKey: masterKey,
+                    passwordCsvText: csvText
+                });
+                
+                if (result.ok) {
+                    showToast(`作成: ${result.data.created}件, 更新: ${result.data.updated}件`);
+                    document.getElementById('csvInput').value = '';
+                } else {
+                    showToast(result.message || 'インポートに失敗しました', true);
+                }
+            } catch (error) {
+                showToast('ネットワークエラーが発生しました', true);
+            }
+        }
+        
+        // 全データエクスポート
+        async function exportAllData() {
+            const masterKey = document.getElementById('masterKey').value;
+            
+            try {
+                const result = await apiCall({
+                    action: 'exportAll',
+                    masterKey: masterKey
+                });
+                
+                if (result.ok) {
+                    const blob = new Blob([JSON.stringify(result.data, null, 2)], {
+                        type: 'application/json'
+                    });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `school_data_${new Date().toISOString().split('T')[0]}.json`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    showToast('ダウンロードを開始しました');
+                } else {
+                    showToast(result.message || 'エクスポートに失敗しました', true);
+                }
+            } catch (error) {
+                showToast('ネットワークエラーが発生しました', true);
+            }
+        }
+        
+        // API呼び出し
+        async function apiCall(data) {
+            const response = await fetch(API_BASE, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            
+            return await response.json();
+        }
+        
+        // ユーティリティ関数
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = isError ? 'toast error' : 'toast';
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+        
+        function showError(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.style.display = 'block';
+            
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 5000);
+        }
+        
+        function formatDateJP(dateStr) {
+            const date = new Date(dateStr + 'T00:00:00');
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const weekday = ['日', '月', '火', '水', '木', '金', '土'][date.getDay()];
+            return `${year}年${month}月${day}日(${weekday})`;
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
