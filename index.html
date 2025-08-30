@@ -10,6 +10,8 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+        .date-nav input {
+            flex: 1;
         }
         
         body {
@@ -335,8 +337,23 @@
             font-size: 14px;
         }
         
-        .date-nav input {
-            flex: 1;
+        .teacher-comment {
+            background-color: #e8f5e9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #4caf50;
+        }
+        
+        .teacher-comment-label {
+            font-weight: 600;
+            color: #2e7d32;
+            margin-bottom: 8px;
+        }
+        
+        .no-comment {
+            color: #86868b;
+            font-style: italic;
         }
     </style>
 </head>
@@ -678,10 +695,36 @@
                     if (record.score) {
                         setScore(record.score);
                     }
+                    
+                    // 先生のコメントがある場合は表示
+                    let commentDisplay = document.getElementById('teacherCommentDisplay');
+                    if (!commentDisplay) {
+                        // コメント表示エリアを作成
+                        const reflectionSection = document.querySelector('#todayTab .section:last-child');
+                        const commentDiv = document.createElement('div');
+                        commentDiv.id = 'teacherCommentDisplay';
+                        reflectionSection.appendChild(commentDiv);
+                        commentDisplay = commentDiv;
+                    }
+                    
+                    if (record.teacherComment) {
+                        commentDisplay.innerHTML = `
+                            <div class="teacher-comment" style="margin-top: 20px;">
+                                <div class="teacher-comment-label">先生からのコメント</div>
+                                ${escapeHtml(record.teacherComment)}
+                            </div>
+                        `;
+                    } else {
+                        commentDisplay.innerHTML = '';
+                    }
                 } else {
                     document.getElementById('goalInput').value = '';
                     document.getElementById('reflectionInput').value = '';
                     setScore(0);
+                    const commentDisplay = document.getElementById('teacherCommentDisplay');
+                    if (commentDisplay) {
+                        commentDisplay.innerHTML = '';
+                    }
                 }
             } catch (error) {
                 showToast('記録の読み込みに失敗しました', true);
@@ -779,6 +822,12 @@
                                 </div>
                             ` : ''}
                             ${!record.goal && !record.reflection ? '<div style="color: #86868b;">この日の記録はありません</div>' : ''}
+                            ${record.teacherComment ? `
+                                <div class="teacher-comment">
+                                    <div class="teacher-comment-label">先生からのコメント</div>
+                                    ${escapeHtml(record.teacherComment)}
+                                </div>
+                            ` : ''}
                         </div>
                     `;
                 } else {
@@ -837,6 +886,12 @@
                         </div>
                     ` : ''}
                     ${!item.goal && !item.reflection ? '<div style="color: #86868b;">データなし</div>' : ''}
+                    ${item.teacherComment ? `
+                        <div class="teacher-comment">
+                            <div class="teacher-comment-label">先生からのコメント</div>
+                            ${escapeHtml(item.teacherComment)}
+                        </div>
+                    ` : ''}
                 </div>
             `).join('');
         }
