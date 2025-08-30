@@ -524,7 +524,7 @@
     
     <script>
         // API設定
-        const API_BASE = "https://script.google.com/macros/s/AKfycbx9pNfpI8_r1-mpMgECRbRU-S-DorKm6DC10g1XA-vmsXUw9J0NeVK44hanVzbUQs9g/exec";
+        const API_BASE = "https://script.google.com/macros/s/AKfycbx0jtkaaptI3bMGRrXGxpzCt8QpamXyoi-IlVp6mQvJ9qUyati39SG8OBxQ6j08_fml/exec";
         
         // グローバル変数
         let currentUser = null;
@@ -1000,19 +1000,36 @@
         
         // API呼び出し
         async function apiCall(data) {
-            const response = await fetch(API_BASE, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
-            
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
+            try {
+                console.log('API呼び出し:', data);
+                
+                // Google Apps Script向けの呼び出し
+                const response = await fetch(API_BASE, {
+                    method: 'POST',
+                    body: JSON.stringify(data),
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8'
+                    }
+                });
+                
+                const text = await response.text();
+                console.log('レスポンス:', text);
+                
+                try {
+                    const result = JSON.parse(text);
+                    return result;
+                } catch (e) {
+                    console.error('JSON解析エラー:', e, 'テキスト:', text);
+                    // HTMLが返ってきた場合（エラーページなど）
+                    if (text.includes('<!DOCTYPE html>')) {
+                        throw new Error('サーバーエラーが発生しました。管理者に連絡してください。');
+                    }
+                    throw new Error('サーバーからの応答が不正です');
+                }
+            } catch (error) {
+                console.error('API呼び出しエラー:', error);
+                throw error;
             }
-            
-            return await response.json();
         }
         
         // ユーティリティ関数
