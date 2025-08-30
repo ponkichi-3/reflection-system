@@ -766,14 +766,19 @@
                         <div class="record-card">
                             <div class="record-date">${formatDateJP(date)}</div>
                             ${record.score ? `<div class="record-score">★${record.score}</div>` : ''}
-                            <div style="margin: 10px 0;">
-                                <strong>目標:</strong><br>
-                                ${escapeHtml(record.goal || '未記入')}
-                            </div>
-                            <div style="margin: 10px 0;">
-                                <strong>学び・気づき:</strong><br>
-                                ${escapeHtml(record.reflection || '未記入')}
-                            </div>
+                            ${record.goal ? `
+                                <div style="margin: 10px 0;">
+                                    <strong>目標:</strong><br>
+                                    ${escapeHtml(record.goal)}
+                                </div>
+                            ` : ''}
+                            ${record.reflection ? `
+                                <div style="margin: 10px 0;">
+                                    <strong>学び・気づき:</strong><br>
+                                    ${escapeHtml(record.reflection)}
+                                </div>
+                            ` : ''}
+                            ${!record.goal && !record.reflection ? '<div style="color: #86868b;">この日の記録はありません</div>' : ''}
                         </div>
                     `;
                 } else {
@@ -819,14 +824,19 @@
                 <div class="record-card">
                     <div class="record-date">${formatDateJP(item.date)}</div>
                     ${item.score ? `<div class="record-score">★${item.score}</div>` : ''}
-                    <div style="margin: 10px 0;">
-                        <strong>目標:</strong><br>
-                        ${escapeHtml(item.goal || '未記入')}
-                    </div>
-                    <div style="margin: 10px 0;">
-                        <strong>学び・気づき:</strong><br>
-                        ${escapeHtml(item.reflection || '未記入')}
-                    </div>
+                    ${item.goal ? `
+                        <div style="margin: 10px 0;">
+                            <strong>目標:</strong><br>
+                            ${escapeHtml(item.goal)}
+                        </div>
+                    ` : ''}
+                    ${item.reflection ? `
+                        <div style="margin: 10px 0;">
+                            <strong>学び・気づき:</strong><br>
+                            ${escapeHtml(item.reflection)}
+                        </div>
+                    ` : ''}
+                    ${!item.goal && !item.reflection ? '<div style="color: #86868b;">データなし</div>' : ''}
                 </div>
             `).join('');
         }
